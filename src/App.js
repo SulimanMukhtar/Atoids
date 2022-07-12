@@ -1,9 +1,14 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { connect } from "./redux/blockchain/blockchainActions";
 import { fetchData } from "./redux/data/dataActions";
 import * as s from "./styles/globalStyles";
 import styled from "styled-components";
+const keccak256 = require("keccak256");
+const { MerkleTree } = require("merkletreejs");
+
+
+const addresses = ["0x9A6Aa615aeA32d6Cf70849fda9683Bc01f40f08E", "0xf81557c97c00cf7b290245704Eb0675e2cEFC7a6"];
 
 const truncate = (input, len) =>
   input.length > len ? `${input.substring(0, len)}...` : input;
@@ -120,37 +125,126 @@ function App() {
     SHOW_BACKGROUND: false,
   });
 
-  const claimNFTs = () => {
-    let cost = CONFIG.WEI_COST;
+  const claimNFTs = async () => {
+
+    const leaf = addresses.map(addr => keccak256(addr));
+    const Merkletree = new MerkleTree(leaf, keccak256, { sortPairs: true });
+
+    const rootHash = Merkletree.getRoot();
+    const adddd = keccak256(blockchain.account);
+
+    const proof = Merkletree.getHexProof(adddd);
+
+    console.log(Merkletree.toString());
+
+    let publicCost = await blockchain.smartContract.methods.publicCost().call();
+    let whitelistCost = await blockchain.smartContract.methods.whitelistCost().call();
     let gasLimit = CONFIG.GAS_LIMIT;
-    let totalCostWei = String(cost * mintAmount);
+    let totalCostWei;
     let totalGasLimit = String(gasLimit * mintAmount);
-    console.log("Cost: ", totalCostWei);
     console.log("Gas limit: ", totalGasLimit);
     setFeedback(`Minting your ${CONFIG.NFT_NAME}...`);
     setClaimingNft(true);
-    blockchain.smartContract.methods
-      .mint(blockchain.account, mintAmount)
-      .send({
-        gasLimit: String(totalGasLimit),
-        to: CONFIG.CONTRACT_ADDRESS,
-        from: blockchain.account,
-        value: totalCostWei,
-      })
-      .once("error", (err) => {
-        console.log(err);
-        setFeedback("Sorry, something went wrong please try again later.");
-        setClaimingNft(false);
-      })
-      .then((receipt) => {
-        console.log(receipt);
-        setFeedback(
-          `WOW, the ${CONFIG.NFT_NAME} is yours! go visit Opensea.io to view it.`
-        );
-        setClaimingNft(false);
-        dispatch(fetchData(blockchain.account));
-      });
+    let whitlistStatus = await blockchain.smartContract.methods.whitelistEnabled().call();
+    if (whitlistStatus === false) {
+      totalCostWei = String(publicCost * mintAmount);
+      await blockchain.smartContract.methods
+        .mint(mintAmount)
+        .call({
+          gasLimit: String(totalGasLimit),
+          to: CONFIG.CONTRACT_ADDRESS,
+          from: blockchain.account,
+          value: totalCostWei,
+        }).then((receipt) => {
+          console.log(receipt);
+          publicMint();
+          setClaimingNft(false);
+          dispatch(fetchData(blockchain.account));
+        })
+        .catch((error) => {
+          if (error.code === -32603) {
+            setFeedback(error.data.message.slice(20));
+          } else if (error.code === -32000) {
+            setFeedback("Insufficient Funds.");
+          } else if (error.code === 4001) {
+            setFeedback("Mint Canceled , Please Try Again.");
+          } else {
+            setFeedback("Something Went Wrong , Please Try Again.");
+          }
+          setClaimingNft(false);
+        });
+    } else if (whitlistStatus === true) {
+      totalCostWei = String(whitelistCost * mintAmount);
+      await blockchain.smartContract.methods
+        .whitelistMint(mintAmount, proof)
+        .call({
+          gasLimit: String(totalGasLimit),
+          to: CONFIG.CONTRACT_ADDRESS,
+          from: blockchain.account,
+          value: totalCostWei,
+        }).then((receipt) => {
+          console.log(receipt);
+          whitelistMint();
+          setClaimingNft(false);
+          dispatch(fetchData(blockchain.account));
+        })
+        .catch((error) => {
+          console.log(error);
+          if (error.code === -32603) {
+            setFeedback(error.data.message.slice(20));
+          } else if (error.code === -32000) {
+            setFeedback("Insufficient Funds.");
+          } else if (error.code === 4001) {
+            setFeedback("Mint Canceled , Please Try Again.");
+          } else {
+            setFeedback("Something Went Wrong , Please Try Again.");
+          }
+          setClaimingNft(false);
+        });
+    }
   };
+
+  async function publicMint() {
+    let publicCost = await blockchain.smartContract.methods.publicCost().call();
+    let gasLimit = CONFIG.GAS_LIMIT;
+    let totalGasLimit = String(gasLimit * mintAmount);
+    let totalCostWei = String(publicCost * mintAmount);
+    await blockchain.smartContract.methods.mint(mintAmount).send({
+      gasLimit: String(totalGasLimit),
+      to: CONFIG.CONTRACT_ADDRESS,
+      from: blockchain.account,
+      value: totalCostWei,
+    });
+
+
+    setFeedback(
+      `WOW, the ${CONFIG.NFT_NAME} is yours! go visit Opensea.io to view it.`
+    );
+  }
+
+  async function whitelistMint() {
+    const leaf = addresses.map(addr => keccak256(addr));
+    const Merkletree = new MerkleTree(leaf, keccak256, { sortPairs: true });
+
+    const rootHash = Merkletree.getRoot();
+    const adddd = keccak256(blockchain.account);
+
+    const proof = Merkletree.getHexProof(adddd);
+
+    let whitelistCost = await blockchain.smartContract.methods.whitelistCost().call();
+    let gasLimit = CONFIG.GAS_LIMIT;
+    let totalGasLimit = String(gasLimit * mintAmount);
+    let totalCostWei = String(whitelistCost * mintAmount);
+    await blockchain.smartContract.methods.whitelistMint(mintAmount, proof).send({
+      gasLimit: String(totalGasLimit),
+      to: CONFIG.CONTRACT_ADDRESS,
+      from: blockchain.account,
+      value: totalCostWei,
+    });
+    setFeedback(
+      `WOW, the ${CONFIG.NFT_NAME} is yours! go visit Opensea.io to view it.`
+    );
+  }
 
   const decrementMintAmount = () => {
     let newMintAmount = mintAmount - 1;
@@ -249,13 +343,13 @@ function App() {
             >
               <StyledButton
                 onClick={(e) => {
-                  window.open("/config/roadmap.pdf", "_blank");
+                  window.open("https://discord.com", "_blank");
                 }}
                 style={{
                   margin: "5px",
                 }}
               >
-                Roadmap
+                Discord
               </StyledButton>
               <StyledButton
                 style={{
@@ -302,7 +396,7 @@ function App() {
                 </s.TextDescription>
                 <s.SpacerSmall />
                 {blockchain.account === "" ||
-                blockchain.smartContract === null ? (
+                  blockchain.smartContract === null ? (
                   <s.Container ai={"center"} jc={"center"}>
                     <s.TextDescription
                       style={{

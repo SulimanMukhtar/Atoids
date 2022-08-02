@@ -1,6 +1,6 @@
 // constants
-import Web3EthContract from "web3-eth-contract";
-import Web3 from "web3";
+import { ethers } from 'ethers'
+
 // log
 import { fetchData } from "../data/dataActions";
 
@@ -48,11 +48,12 @@ export const connect = () => {
       },
     });
     const CONFIG = await configResponse.json();
-    const { ethereum } = window;
+
     const metamaskIsInstalled = ethereum && ethereum.isMetaMask;
     if (metamaskIsInstalled) {
-      Web3EthContract.setProvider(ethereum);
-      let web3 = new Web3(ethereum);
+      var provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+      var signer = provider.getSigner();
+      var account = await signer.getAddress()
       try {
         const accounts = await ethereum.request({
           method: "eth_requestAccounts",
@@ -61,15 +62,17 @@ export const connect = () => {
           method: "net_version",
         });
         if (networkId == CONFIG.NETWORK.ID) {
-          const SmartContractObj = new Web3EthContract(
+          const SmartContractObj = new ethers.Contract(
+            CONFIG.CONTRACT_ADDRESS,
             abi,
-            CONFIG.CONTRACT_ADDRESS
+            signer
           );
+          console.log(SmartContractObj)
           dispatch(
             connectSuccess({
-              account: accounts[0],
+              account: account,
               smartContract: SmartContractObj,
-              web3: web3,
+              ethers: ethers,
             })
           );
           // Add listeners start
@@ -92,9 +95,13 @@ export const connect = () => {
   };
 };
 
+
+
 export const updateAccount = (account) => {
   return async (dispatch) => {
     dispatch(updateAccountRequest({ account: account }));
     dispatch(fetchData(account));
   };
 };
+
+

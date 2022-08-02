@@ -21,23 +21,49 @@ const fetchDataFailed = (payload) => {
   };
 };
 
-export const fetchData = () => {
+export const fetchData = (acc, NFT) => {
   return async (dispatch) => {
     dispatch(fetchDataRequest());
+
     try {
+      var test = await store.getState().blockchain.ethers.BigNumber.from(NFT).toNumber()
+      console.log(test);
       let totalSupply = await store
+        .getState().
+        blockchain.smartContract.totalSupply(test);
+      totalSupply = String(totalSupply)
+      let Owner = await store
         .getState()
-        .blockchain.smartContract.methods.totalSupply()
-        .call();
-      // let cost = await store
-      //   .getState()
-      //   .blockchain.smartContract.methods.cost()
-      //   .call();
+        .blockchain.smartContract.owner()
+        ;
+      Owner = String(Owner)
+      let whitelistEnabled = await store
+        .getState()
+        .blockchain.smartContract.whitelistEnabled()
+        ;
+      let paused = await store
+        .getState()
+        .blockchain.smartContract.paused()
+        ;
+      let publicCost = await store
+        .getState()
+        .blockchain.smartContract.publicCost()
+        ;
+      publicCost = String(publicCost)
+      let whitelistCost = await store
+        .getState()
+        .blockchain.smartContract.whitelistCost()
+        ;
+      whitelistCost = String(whitelistCost)
 
       dispatch(
         fetchDataSuccess({
           totalSupply,
-          // cost,
+          whitelistEnabled,
+          paused,
+          publicCost,
+          whitelistCost,
+          Owner
         })
       );
     } catch (err) {
@@ -46,3 +72,6 @@ export const fetchData = () => {
     }
   };
 };
+
+
+

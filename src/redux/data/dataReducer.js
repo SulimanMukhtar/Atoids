@@ -1,7 +1,11 @@
 const initialState = {
   loading: false,
   totalSupply: 0,
-  cost: 0,
+  owner: "",
+  whitelistEnabled: false,
+  paused: true,
+  publicCost: 0,
+  whitelistCost: 0,
   error: false,
   errorMsg: "",
 };
@@ -20,7 +24,11 @@ const dataReducer = (state = initialState, action) => {
         ...state,
         loading: false,
         totalSupply: action.payload.totalSupply,
-        // cost: action.payload.cost,
+        owner: action.payload.Owner,
+        whitelistEnabled: action.payload.whitelistEnabled,
+        paused: action.payload.paused,
+        whitelistCost: action.payload.whitelistCost,
+        publicCost: action.payload.publicCost,
         error: false,
         errorMsg: "",
       };

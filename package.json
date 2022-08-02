@@ -1,9 +1,10 @@
 {
-  "name": "the_stripes_nft_dapp",
-  "version": "1.0.0",
-  "description": "The Stripes NFT minting dapp is a quick and easy way to connect your smart contract and start minting NFTs.",
+  "name": "optimaized_strips_dapp",
+  "version": "2.1.0",
+  "description": "a quick and easy way to connect your smart contract and start minting NFTs And Manage Contract. Supports Whitelist , Public mint",
   "private": true,
   "dependencies": {
+    "ethers": "^5.6.9",
     "keccak256": "^1.0.6",
     "merkletreejs": "^0.2.32",
     "react": "^17.0.2",
@@ -14,11 +15,9 @@
     "redux": "^4.1.1",
     "redux-thunk": "^2.3.0",
     "styled-components": "^5.3.0",
-    "web-vitals": "^1.0.1",
-    "web3": "^1.5.1",
-    "web3-eth-contract": "^1.5.2"
+    "web-vitals": "^1.0.1"
   },
-  "author": "Ali Solanki, Daniel Eugene Botha",
+  "author": "Ali Solanki, Daniel Eugene Botha , Suliman Mukhtar",
   "license": "MIT",
   "scripts": {
     "start": "react-scripts start",

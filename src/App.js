@@ -11,8 +11,6 @@ function App() {
         <Route exact path="/Manage" element={<Manage />} />
       </Routes>
     </div>
-
-
   );
 }
 

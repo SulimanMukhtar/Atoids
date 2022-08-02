@@ -78,10 +78,10 @@ export const StyledLogo = styled.img`
   transition: width 0.5s;
   transition: height 0.5s;
 `;
+//  border: 4px dashed var(--secondary);
 
 export const StyledImg = styled.img`
   box-shadow: 0px 5px 11px 2px rgba(0, 0, 0, 0.7);
-  border: 4px dashed var(--secondary);
   background-color: var(--accent);
   border-radius: 100%;
   width: 200px;
@@ -93,6 +93,7 @@ export const StyledImg = styled.img`
   }
   transition: width 0.5s;
 `;
+
 
 export const StyledLink = styled.a`
   color: var(--secondary);
@@ -139,10 +140,8 @@ function App() {
 
         let publicCost = await blockchain.smartContract.methods.publicCost().call();
         let whitelistCost = await blockchain.smartContract.methods.whitelistCost().call();
-        let gasLimit = CONFIG.GAS_LIMIT;
         let totalCostWei;
-        let totalGasLimit = String(gasLimit * mintAmount);
-        console.log("Gas limit: ", totalGasLimit);
+
         setFeedback(`Minting your ${CONFIG.NFT_NAME}...`);
         setClaimingNft(true);
         let whitlistStatus = await blockchain.smartContract.methods.whitelistEnabled().call();
@@ -151,7 +150,6 @@ function App() {
             await blockchain.smartContract.methods
                 .mint(mintAmount)
                 .call({
-                    gasLimit: String(totalGasLimit),
                     to: CONFIG.CONTRACT_ADDRESS,
                     from: blockchain.account,
                     value: totalCostWei,
@@ -178,7 +176,6 @@ function App() {
             await blockchain.smartContract.methods
                 .whitelistMint(mintAmount, proof)
                 .call({
-                    gasLimit: String(totalGasLimit),
                     to: CONFIG.CONTRACT_ADDRESS,
                     from: blockchain.account,
                     value: totalCostWei,
@@ -206,11 +203,8 @@ function App() {
 
     async function publicMint() {
         let publicCost = await blockchain.smartContract.methods.publicCost().call();
-        let gasLimit = CONFIG.GAS_LIMIT;
-        let totalGasLimit = String(gasLimit * mintAmount);
         let totalCostWei = String(publicCost * mintAmount);
         await blockchain.smartContract.methods.mint(mintAmount).send({
-            gasLimit: String(totalGasLimit),
             to: CONFIG.CONTRACT_ADDRESS,
             from: blockchain.account,
             value: totalCostWei,
@@ -232,11 +226,8 @@ function App() {
         const proof = Merkletree.getHexProof(adddd);
 
         let whitelistCost = await blockchain.smartContract.methods.whitelistCost().call();
-        let gasLimit = CONFIG.GAS_LIMIT;
-        let totalGasLimit = String(gasLimit * mintAmount);
         let totalCostWei = String(whitelistCost * mintAmount);
         await blockchain.smartContract.methods.whitelistMint(mintAmount, proof).send({
-            gasLimit: String(totalGasLimit),
             to: CONFIG.CONTRACT_ADDRESS,
             from: blockchain.account,
             value: totalCostWei,
@@ -312,7 +303,7 @@ function App() {
                             backgroundColor: "var(--accent)",
                             padding: 24,
                             borderRadius: 24,
-                            border: "4px dashed var(--secondary)",
+                            opacity: 0.8,
                             boxShadow: "0px 5px 11px 2px rgba(0,0,0,0.7)",
                         }}
                     >
@@ -501,29 +492,7 @@ function App() {
                     </s.Container>
                 </ResponsiveWrapper>
                 <s.SpacerMedium />
-                <s.Container jc={"center"} ai={"center"} style={{ width: "70%" }}>
-                    <s.TextDescription
-                        style={{
-                            textAlign: "center",
-                            color: "var(--primary-text)",
-                        }}
-                    >
-                        Please make sure you are connected to the right network (
-                        {CONFIG.NETWORK.NAME} Mainnet) and the correct address. Please note:
-                        Once you make the purchase, you cannot undo this action.
-                    </s.TextDescription>
-                    <s.SpacerSmall />
-                    <s.TextDescription
-                        style={{
-                            textAlign: "center",
-                            color: "var(--primary-text)",
-                        }}
-                    >
-                        We have set the gas limit to {CONFIG.GAS_LIMIT} for the contract to
-                        successfully mint your NFT. We recommend that you don't lower the
-                        gas limit.
-                    </s.TextDescription>
-                </s.Container>
+
             </s.Container>
         </s.Screen>
     );

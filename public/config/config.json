@@ -1,10 +1,10 @@
 {
-  "CONTRACT_ADDRESS": "0x184347c68c08eA871541A8123fA98dBAA052DF35",
-  "SCAN_LINK": "https://rinkeby.etherscan.io/token/0x184347c68c08eA871541A8123fA98dBAA052DF35",
+  "CONTRACT_ADDRESS": "0x06abd576711a4bf85aa2fcd9be3621d51742ed39",
+  "SCAN_LINK": "https://etherscan.io/token/0x06abd576711a4bf85aa2fcd9be3621d51742ed39",
   "NETWORK": {
     "NAME": "Ethereum",
     "SYMBOL": "ETH",
-    "ID": 4
+    "ID": 1
   },
   "NFT_NAME": "The Atoids NFT",
   "SYMBOL": "ATOID",
@@ -13,6 +13,6 @@
   "DISPLAY_COST": 0,
   "GAS_LIMIT": 285000,
   "MARKETPLACE": "Opensea",
-  "MARKETPLACE_LINK": "https://testnets.opensea.io/collection/atoids-v2",
+  "MARKETPLACE_LINK": "https://opensea.io/collection/atoids-v2",
   "SHOW_BACKGROUND": true
 }

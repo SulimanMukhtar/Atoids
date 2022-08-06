@@ -1,6 +1,6 @@
 {
-  "CONTRACT_ADDRESS": "0x929ba1c587c96540ed512C68C3df61Cabce3aE6C",
-  "SCAN_LINK": "https://rinkeby.etherscan.io/token/0x929ba1c587c96540ed512C68C3df61Cabce3aE6C",
+  "CONTRACT_ADDRESS": "0x184347c68c08eA871541A8123fA98dBAA052DF35",
+  "SCAN_LINK": "https://rinkeby.etherscan.io/token/0x184347c68c08eA871541A8123fA98dBAA052DF35",
   "NETWORK": {
     "NAME": "Ethereum",
     "SYMBOL": "ETH",
@@ -13,6 +13,6 @@
   "DISPLAY_COST": 0,
   "GAS_LIMIT": 285000,
   "MARKETPLACE": "Opensea",
-  "MARKETPLACE_LINK": "https://testnets.opensea.io/collection/atoids",
+  "MARKETPLACE_LINK": "https://testnets.opensea.io/collection/atoids-v2",
   "SHOW_BACKGROUND": true
 }

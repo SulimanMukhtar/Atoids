@@ -21,16 +21,15 @@ const fetchDataFailed = (payload) => {
   };
 };
 
-export const fetchData = (acc, NFT) => {
+export const fetchData = () => {
   return async (dispatch) => {
     dispatch(fetchDataRequest());
 
     try {
-      var test = await store.getState().blockchain.ethers.BigNumber.from(NFT).toNumber()
-      console.log(test);
+
       let totalSupply = await store
         .getState().
-        blockchain.smartContract.totalSupply(test);
+        blockchain.smartContract.totalSupply();
       totalSupply = String(totalSupply)
       let Owner = await store
         .getState()
